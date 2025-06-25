@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using ManejoStocks.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace ManejoStocks.Data
@@ -9,5 +10,7 @@ namespace ManejoStocks.Data
             : base(options)
         {
         }
+        public DbSet<Productos> productos { get; set; }
+        public DbSet<Usuarios> usuarios { get; set; }
     }
 }

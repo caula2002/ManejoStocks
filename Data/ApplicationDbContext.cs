@@ -10,7 +10,7 @@ namespace ManejoStocks.Data
             : base(options)
         {
         }
-        public DbSet<Productos> productos { get; set; }
-        public DbSet<Usuarios> usuarios { get; set; }
+        public DbSet<Productos> Productos { get; set; }
+        public DbSet<Usuarios> Usuarios { get; set; }
     }
 }

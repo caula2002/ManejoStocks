@@ -1,14 +1,30 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System;
+using ManejoStocks.Data;
+using ManejoStocks.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using ManejoStocks.ViewsModels;
 
 namespace ManejoStocks.Controllers
 {
     public class UsuarioController : Controller
     {
-        // GET: UsuarioController
-        public ActionResult Index()
+        private readonly ApplicationDbContext _context;
+
+        public UsuarioController(ApplicationDbContext context)
         {
-            return View();
+            _context = context;
+        }
+        // GET: UsuarioController
+        public async Task<IActionResult> Index()
+        {
+            IQueryable<Usuarios> appDbContext = _context.Usuarios;
+            UsuariosViewModel modelo = new UsuariosViewModel()
+            {
+                Usuarios = await appDbContext.ToListAsync()
+            };
+            return View(modelo);
         }
 
         // GET: UsuarioController/Details/5
@@ -26,58 +42,100 @@ namespace ManejoStocks.Controllers
         // POST: UsuarioController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public async Task<IActionResult> Create([Bind("Id,Nombre,Apellido,Puesto")] Usuarios usuarios)
         {
-            try
+            if (ModelState.IsValid)
             {
+                _context.Add(usuarios);
+                await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            catch
-            {
-                return View();
-            }
+            return View(usuarios);
         }
 
         // GET: UsuarioController/Edit/5
-        public ActionResult Edit(int id)
+        public async Task<IActionResult> Edit(int? id)
         {
-            return View();
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var usuario = await _context.Usuarios.FindAsync(id);
+            if (usuario == null)
+            {
+                return NotFound();
+            }
+            return View(usuario);
         }
 
         // POST: UsuarioController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Nombre,Apellido,Puesto")] Usuarios usuarios)
         {
-            try
+            if (id != usuarios.Id)
             {
+                return NotFound();
+            }
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _context.Update(usuarios);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!UsuariosExists(usuarios.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
                 return RedirectToAction(nameof(Index));
             }
-            catch
-            {
-                return View();
-            }
+            return View(usuarios);
         }
 
         // GET: UsuarioController/Delete/5
-        public ActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int? id)
         {
-            return View();
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var usuario = await _context.Usuarios
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (usuario == null)
+            {
+                return NotFound();
+            }
+
+            return View(usuario);
         }
 
         // POST: UsuarioController/Delete/5
-        [HttpPost]
+        [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            try
+            var usuario = await _context.Usuarios.FindAsync(id);
+            if (usuario != null)
             {
-                return RedirectToAction(nameof(Index));
+                _context.Usuarios.Remove(usuario);
             }
-            catch
-            {
-                return View();
-            }
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+        private bool UsuariosExists(int id)
+        {
+            return _context.Usuarios.Any(e => e.Id == id);
         }
     }
 }

@@ -11,4 +11,10 @@ namespace ManejoStocks.ViewsModels
         public List<Productos>? Productos { get; set; }
         public string? buscarNombre { get; set; }
     }
+    public class StockViewModel
+    {
+        public List<Stock>? Stocks { get; set; }
+        public string? buscarNombre { get; set; }
+        public bool MostrarSoloBajosStocks { get; set; }
+    }
 }
